@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Request Example</title>
+</head>
+<body>
+    <h1>Search The Bw player</h1>
+    <div>
+        <label for="inputField">Enter the name:</label>
+        <input type="text" id="inputField" placeholder="Type something...">
+        <button id="submitButton">Submit</button>
+    </div>
+    <div id="output"></div>
+
+    <script>
+        const inputField = document.getElementById('inputField');
+        const submitButton = document.getElementById('submitButton');
+        const outputDiv = document.getElementById('output');
+        
+        async function sendDataToApi(url, method, body) {
+            const headers = new Headers()
+            headers.append('Content-Type', 'application/json')
+
+            const requestOptions = {
+                method: method,
+                headers: headers,
+                body: JSON.stringify(body)
+            }
+
+            const response = await fetch(`/api/${url}`, requestOptions)
+                .then(response => response.json())
+                .then(data => {
+                    let parsedData = JSON.parse(data)
+
+                    const resultDiv = document.createElement('div');
+                    resultDiv.textContent = `Name: ${body.name} | Fkdr: ${(parsedData.final_kills_bedwars / parsedData.final_deaths_bedwars).toFixed(1)} | Stars: ${parsedData.Experience / 5000} | WS: ${parsedData.winstreak}`;
+
+                    // Append the new result to the output div
+                    outputDiv.appendChild(resultDiv);
+
+                    // Clear the input field after search
+                    inputField.value = '';
+                })
+        }
+
+        submitButton.addEventListener('click', async () => {
+            let data = {
+                name: inputField.value
+            }
+
+            sendDataToApi("getPlayerStats", "POST", data)
+        });
+    </script>
+</body>
+</html>
